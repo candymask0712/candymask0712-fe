@@ -32,23 +32,12 @@ const Form = () => {
         password: formData.pw,
       })
       .then(function (response) {
-        // console.log('response', response);
         console.log('response.data.data', response.data.data);
       })
       .catch(function (error) {
         console.log('error', error);
       })
-      .then(function () {
-        // 항상 실행
-      });
-
-    // async await 함수를 사용할 때,
-
-    // try {
-    //   const data = await axios.post('url');
-    // } catch {
-    //   // 오류 발생시 실행
-    // }
+      .then(function () {});
   };
 
   return (

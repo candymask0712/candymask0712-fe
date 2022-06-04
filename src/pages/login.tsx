@@ -25,14 +25,6 @@ export const FormContext = createContext({
 const LoginPage: NextPage = () => {
   return (
     <>
-      <Header>
-        <Link href='/'>
-          <Title>HAUS</Title>
-        </Link>
-        <Link href='/login'>
-          <Mock>login</Mock>
-        </Link>
-      </Header>
       <Form />
     </>
   );
@@ -40,15 +32,8 @@ const LoginPage: NextPage = () => {
 
 export default LoginPage;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-`;
-
-const Title = styled.a`
+const TitleH1 = styled.h1`
   font-size: 48px;
 `;
 
-const Mock = styled.div``;
+const TitleH3 = styled.h3``;
