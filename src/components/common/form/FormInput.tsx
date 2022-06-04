@@ -1,22 +1,46 @@
 import { useEffect, useRef, useContext } from 'react';
-import { FormContext } from '../../../pages/login';
 import styled from 'styled-components';
 
 const ID_REGEX = new RegExp('^[a-zA-Z0-9]{5,30}$');
 const PW_REGEX = new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,30}$');
 
 const ERROR_MSG: ERROR_MSG_Type = {
-  // required: '필수 정보입니다.',
   invalidId: '올바른 아이디 형식으로 입력해주세요',
   invalidPw: '올바른 비밀번호 형식으로 입력해주세요',
 };
 
 type ERROR_MSG_Type = {
-  // required: string;
   invalidId: string;
   invalidPw: string;
   [index: string]: string;
 };
+
+type InitialErrorData = {
+  id: string;
+  pw: string;
+  [index: string]: string;
+};
+
+type InitialFormData = {
+  id: string;
+  pw: string;
+  [index: string]: string;
+};
+
+interface FormInputProps {
+  id: string;
+  label: string;
+  errorData: InitialErrorData;
+  setErrorData: any;
+  formData: InitialFormData;
+  setFormData: any;
+  setAllValid: any;
+  inputProps: {
+    type: string;
+    placeholder: string;
+    [index: string]: string | boolean;
+  };
+}
 
 const FormInput = ({
   id,
@@ -27,42 +51,41 @@ const FormInput = ({
   formData,
   setFormData,
   setAllValid,
-}: any) => {
+}: FormInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const checkRegex = (inputId: string, e: any) => {
+  const checkRegex = (inputId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     let result: string | boolean;
-    // const value: string = formData[inputId];
     const value: string = e.target.value;
-    const actionType = e._reactName;
+    const actionType = e.type;
 
-    if (actionType === 'onChange') {
+    if (actionType === 'change') {
       switch (inputId) {
         case 'id':
-          result = ID_REGEX.test(value) && true;
-          // console.log('actionType-result', result, 'inputId', value);
+          result = ID_REGEX.test(value) && 'true';
           break;
         case 'pw':
-          result = PW_REGEX.test(value) && true;
+          result = PW_REGEX.test(value) && 'true';
           break;
         default:
           return;
       }
     }
 
-    if (actionType === 'onBlur') {
+    if (actionType === 'blur') {
       switch (inputId) {
         case 'id':
-          result = ID_REGEX.test(value) ? true : 'invalidId';
+          result = ID_REGEX.test(value) ? 'true' : 'invalidId';
           break;
         case 'pw':
-          result = PW_REGEX.test(value) ? true : 'invalidPw';
+          result = PW_REGEX.test(value) ? 'true' : 'invalidPw';
           break;
         default:
           return;
       }
     }
-    setErrorData((prev: any) => ({ ...prev, [inputId]: result }));
+
+    setErrorData((prev: {}) => ({ ...prev, [inputId]: result }));
   };
 
   useEffect(() => {
@@ -72,9 +95,9 @@ const FormInput = ({
   }, []);
 
   useEffect(() => {
-    // console.log('formData', formData);
-    // console.log('Object.values(errorData)', Object.values(errorData));
-    const inputStatus = Object.values(errorData).every((value: any) => value === true);
+    const inputStatus = Object.values(errorData).every((value) => {
+      return value === 'true';
+    });
     setAllValid(inputStatus);
   }, [formData]);
 
@@ -85,14 +108,15 @@ const FormInput = ({
         id={id}
         ref={inputRef}
         value={formData[id]}
-        onChange={(e: any) => {
-          setFormData((prev: any) => ({ ...prev, [id]: e.target.value }));
+        onChange={(e) => {
+          setFormData((prev: {}) => ({ ...prev, [id]: e.target.value }));
           checkRegex(id, e);
         }}
         onBlur={(e) => checkRegex(id, e)}
+        autoComplete='false'
         {...inputProps}
       />
-      <ErrorMsg>{errorData[id] !== true ? ERROR_MSG[errorData[id]] : ''}</ErrorMsg>
+      <ErrorMsg>{errorData[id] !== 'true' ? ERROR_MSG[errorData[id]] : ''}</ErrorMsg>
     </>
   );
 };

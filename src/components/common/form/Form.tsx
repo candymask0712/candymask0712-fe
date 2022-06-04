@@ -2,29 +2,41 @@ import { useState } from 'react';
 import FormInput from './FormInput';
 import styled from 'styled-components';
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { nameState } from '../../../states/states';
+import { useRouter } from 'next/router';
 
-const initialErrorData = {
+const initialErrorData: InitialErrorData = {
   id: '',
   pw: '',
 };
 
-const initialFormData: InitialFormDataType = {
+const initialFormData: InitialFormData = {
   id: '',
   pw: '',
 };
 
-type InitialFormDataType = {
+type InitialFormData = {
+  id: string;
+  pw: string;
+  [index: string]: string;
+};
+
+type InitialErrorData = {
   id: string;
   pw: string;
   [index: string]: string;
 };
 
 const Form = () => {
+  const router = useRouter();
+
+  const [loginInfo, setLoginInfo] = useRecoilState(nameState);
   const [errorData, setErrorData] = useState(initialErrorData);
   const [formData, setFormData] = useState(initialFormData);
   const [allValid, setAllValid] = useState(true);
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     axios
       .post('/login', {
@@ -32,16 +44,29 @@ const Form = () => {
         password: formData.pw,
       })
       .then(function (response) {
-        console.log('response.data.data', response.data.data);
+        const { accessToken, user } = response.data.data;
+        const userInfo = {
+          local_id: user.ID,
+          local_name: user.NAME,
+          local_accessToken: accessToken,
+        };
+
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
+        setLoginInfo({
+          isLogin: true,
+          id: user.ID,
+          name: user.NAME,
+        });
+        router.push('/');
       })
       .catch(function (error) {
         console.log('error', error);
-      })
-      .then(function () {});
+      });
   };
 
   return (
-    <Container autoComplete={'off'} onSubmit={handleSubmit}>
+    <Container autoComplete='false' onSubmit={handleSubmit}>
       <FormInput
         id={'id'}
         label={'아이디'}
@@ -53,7 +78,6 @@ const Form = () => {
         inputProps={{
           type: 'text',
           placeholder: '아이디를 입력해주세요.',
-          autoFocus: true,
         }}
       />
       <FormInput
@@ -67,10 +91,9 @@ const Form = () => {
         inputProps={{
           type: 'password',
           placeholder: '비밀번호를 입력해주세요',
-          autoComplete: 'off',
         }}
       />
-      <LoginButton disabled={!allValid} id='submit' type='submit' value='가입하기' />
+      <LoginButton disabled={!allValid} id='submit' type='submit' value='로그인' />
     </Container>
   );
 };

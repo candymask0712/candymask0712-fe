@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import type { NextPage } from 'next';
 import styled from 'styled-components';
-import { useState, createContext } from 'react';
+import { useState, createContext, useEffect } from 'react';
 import Form from '../components/common/form/Form';
+import { useRecoilState } from 'recoil';
+import { nameState } from '../states/states';
+import { useRouter } from 'next/router';
 
 const initialFormData: InitialFormDataType = {
   id: '',
@@ -17,12 +20,14 @@ type InitialFormDataType = {
   [index: string]: string;
 };
 
-export const FormContext = createContext({
-  formData: initialFormData,
-  setFormData: () => {},
-});
-
 const LoginPage: NextPage = () => {
+  const router = useRouter();
+  const [loginInfo, setLoginInfo] = useRecoilState(nameState);
+
+  useEffect(() => {
+    if (loginInfo.id !== '') router.push('/');
+  }, []);
+
   return (
     <>
       <Form />
